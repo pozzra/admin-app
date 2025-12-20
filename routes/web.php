@@ -4,6 +4,13 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SliderController;
+use App\Http\Controllers\SettingController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\LanguageController;
+use App\Http\Controllers\UserController;
 
 Route::get('/', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
@@ -14,8 +21,6 @@ Route::get('/login', function () {
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-use App\Http\Controllers\UserController;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/user', [UserController::class, 'index'])->name('user');
