@@ -29,7 +29,7 @@ COPY . /var/www/html
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database /var/www/html/public/user_images /var/www/html/public/category_images /var/www/html/public/product_images
 
 # Configure Apache
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
