@@ -12,7 +12,9 @@ php artisan view:cache
 if [ ! -f /var/www/html/database/database.sqlite ]; then
     echo "Creating database.sqlite..."
     touch /var/www/html/database/database.sqlite
-    chmod 777 /var/www/html/database/database.sqlite
+    # Ensure apache user owns the database file AND directory for write permissions (locking)
+    chown -R www-data:www-data /var/www/html/database
+    chmod 775 /var/www/html/database/database.sqlite
 fi
 
 # Run migrations
