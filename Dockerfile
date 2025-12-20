@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.3-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -25,7 +25,8 @@ WORKDIR /var/www/html
 # Copy existing application directory contents
 COPY . /var/www/html
 
-# Install dependencies
+# Install dependencies (with increased timeout)
+RUN composer config --global process-timeout 2000
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Set permissions
