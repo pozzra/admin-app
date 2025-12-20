@@ -19,5 +19,9 @@ fi
 echo "Running migrations..."
 php artisan migrate --force
 
+# Seed database (create default admin)
+echo "Seeding database..."
+php artisan db:seed --force
+
 # Start Apache in foreground
 exec apache2-foreground
