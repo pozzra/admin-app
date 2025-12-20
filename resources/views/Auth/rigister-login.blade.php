@@ -28,6 +28,7 @@
                 <input type="password" name="password" placeholder="Password" required />
                 <input type="password" name="password_confirmation" placeholder="Confirm Password" required />
                 <button type="submit">Sign Up</button>
+                <p class="mobile-toggle-text">Already have an account? <a href="#" id="signInMobile">Sign In</a></p>
             </form>
         </div>
 
@@ -53,6 +54,7 @@
                 <input type="password" name="password" placeholder="Password" required />
                 <a href="#">Forgot your password?</a>
                 <button type="submit">Sign In</button>
+                <p class="mobile-toggle-text">Don't have an account? <a href="#" id="signUpMobile">Sign Up</a></p>
             </form>
         </div>
 
@@ -101,6 +103,8 @@
         align-items: center;
         width: 100%;
         height: 100%;
+        padding: 20px;
+        box-sizing: border-box;
     }
 
     h1 {
@@ -309,12 +313,74 @@
         height: 40px;
         width: 40px;
     }
+
+    /* Mobile Responsive Styles */
+    .mobile-toggle-text {
+        display: none;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            min-height: 600px; /* Increase height for mobile */
+            width: 100%;
+        }
+
+        .form-container {
+            width: 100%;
+            padding: 0;
+        }
+
+        .sign-in-container {
+            width: 100%;
+        }
+
+        .sign-up-container {
+            width: 100%;
+            opacity: 0;
+            z-index: 1;
+        }
+
+        .overlay-container {
+            display: none;
+        }
+
+        .mobile-toggle-text {
+            display: block;
+            margin-top: 20px;
+        }
+        
+        form {
+            padding: 0 20px;
+        }
+
+        /* Adjust animations for mobile since we occupy same space */
+        .container.right-panel-active .sign-in-container {
+            transform: translateX(100%); /* Move out of view */
+            opacity: 0;
+        }
+
+        .container.right-panel-active .sign-up-container {
+            transform: translateX(0);
+            opacity: 1;
+            z-index: 5;
+            animation: showMobile 0.6s;
+        }
+        
+        @keyframes showMobile {
+            0% { opacity: 0; z-index: 1; }
+            100% { opacity: 1; z-index: 5; }
+        }
+    }
 </style>
 
 <script>
     const signUpButton = document.getElementById('signUp');
     const signInButton = document.getElementById('signIn');
     const container = document.getElementById('container');
+
+    // Mobile buttons
+    const signUpMobile = document.getElementById('signUpMobile');
+    const signInMobile = document.getElementById('signInMobile');
 
     signUpButton.addEventListener('click', () => {
         container.classList.add("right-panel-active");
@@ -323,5 +389,19 @@
     signInButton.addEventListener('click', () => {
         container.classList.remove("right-panel-active");
     });
+
+    if(signUpMobile) {
+        signUpMobile.addEventListener('click', (e) => {
+            e.preventDefault();
+            container.classList.add("right-panel-active");
+        });
+    }
+
+    if(signInMobile) {
+        signInMobile.addEventListener('click', (e) => {
+            e.preventDefault();
+            container.classList.remove("right-panel-active");
+        });
+    }
 </script>
 @endsection
