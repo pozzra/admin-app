@@ -1,0 +1,7 @@
+name = "admin-app"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "admin_app"
+database_id = "7a926a1d-5054-4bc7-8c4f-6b74749dd981"
