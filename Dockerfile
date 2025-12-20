@@ -22,12 +22,16 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
+# Copy composer files first to leverage Docker cache
+COPY composer.json composer.lock ./
+
+# Install dependencies (with settings for slow networks)
+ENV COMPOSER_PROCESS_TIMEOUT=2000
+RUN composer config --global process-timeout 2000 \
+    && composer install --no-interaction --optimize-autoloader --no-dev --prefer-dist
+
 # Copy existing application directory contents
 COPY . /var/www/html
-
-# Install dependencies (with increased timeout)
-RUN composer config --global process-timeout 2000
-RUN composer install --no-interaction --optimize-autoloader --no-dev
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/database /var/www/html/public/user_images /var/www/html/public/category_images /var/www/html/public/product_images
