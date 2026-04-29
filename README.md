@@ -125,4 +125,8 @@ Once the server is running, you can log in to the admin panel using the followin
 * **Password:** `admin12345`
 
 > **Note:** It is highly recommended to change this password immediately after your first login for security purposes.
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> c4dfca7d410a56aa5ee315a5e1eb0e4d06002d50
