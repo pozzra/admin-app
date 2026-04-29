@@ -3,12 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
+    protected $telegramService;
+
+    public function __construct(TelegramService $telegramService)
+    {
+        $this->telegramService = $telegramService;
+    }
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -55,6 +63,13 @@ class UserController extends Controller
             'image' => $imageName,
         ]);
 
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("👤🆕 <b>NEW USER CREATED</b>\n\n" .
+                                           "🆔 <b>Name:</b> {$request->name}\n" .
+                                           "📧 <b>Email:</b> {$request->email}\n" .
+                                           "🎖️ <b>Role:</b> {$request->role}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+
         return redirect()->route('user')->with('success', 'User created successfully!');
     }
 
@@ -99,6 +114,13 @@ class UserController extends Controller
 
         $user->save();
 
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("👤🔄 <b>USER UPDATED</b>\n\n" .
+                                           "🆔 <b>Name:</b> {$user->name}\n" .
+                                           "📧 <b>Email:</b> {$user->email}\n" .
+                                           "🔔 <b>Status:</b> {$user->status}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+
         return redirect()->route('user')->with('success', 'User updated successfully!');
     }
 
@@ -114,7 +136,13 @@ class UserController extends Controller
             unlink(public_path('user_images/' . $user->image));
         }
 
+        $userName = $user->name;
         $user->delete();
+
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("👤🗑️ <b>USER DELETED</b>\n\n" .
+                                           "🆔 <b>Name:</b> {$userName}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
 
         return redirect()->route('user')->with('success', 'User deleted successfully!');
     }

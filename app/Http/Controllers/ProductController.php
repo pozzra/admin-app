@@ -4,11 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
+    protected $telegramService;
+
+    public function __construct(TelegramService $telegramService)
+    {
+        $this->telegramService = $telegramService;
+    }
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -54,6 +61,13 @@ class ProductController extends Controller
 
         Product::create($input);
 
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("🆕 <b>NEW PRODUCT CREATED</b>\n\n" .
+                                           "📦 <b>Name:</b> {$input['name']}\n" .
+                                           "💵 <b>Price:</b> $" . number_format($input['price'], 2) . "\n" .
+                                           "📊 <b>Stock:</b> {$input['stock']}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
 
@@ -89,6 +103,13 @@ class ProductController extends Controller
 
         $product->update($input);
 
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("🔄 <b>PRODUCT UPDATED</b>\n\n" .
+                                           "📦 <b>Name:</b> {$product->name}\n" .
+                                           "💵 <b>Price:</b> $" . number_format($product->price, 2) . "\n" .
+                                           "🔔 <b>Status:</b> {$product->status}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
 
@@ -104,7 +125,13 @@ class ProductController extends Controller
             unlink(public_path('product_images/' . $product->image));
         }
 
+        $productName = $product->name;
         $product->delete();
+
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("🗑️ <b>PRODUCT DELETED</b>\n\n" .
+                                           "📦 <b>Name:</b> {$productName}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
 
         return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }

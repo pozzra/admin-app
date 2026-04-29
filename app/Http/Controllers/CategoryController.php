@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class CategoryController extends Controller
 {
+    protected $telegramService;
+
+    public function __construct(TelegramService $telegramService)
+    {
+        $this->telegramService = $telegramService;
+    }
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -48,6 +55,11 @@ class CategoryController extends Controller
 
         Category::create($data);
 
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("📂🆕 <b>NEW CATEGORY CREATED</b>\n\n" .
+                                           "📁 <b>Name:</b> {$data['name']}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+
         return redirect()->route('categories.index')->with('success', 'Category created successfully!');
     }
 
@@ -80,6 +92,12 @@ class CategoryController extends Controller
 
         $category->update($data);
 
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("📂🔄 <b>CATEGORY UPDATED</b>\n\n" .
+                                           "📁 <b>Name:</b> {$category->name}\n" .
+                                           "🔔 <b>Status:</b> {$category->status}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+
         return redirect()->route('categories.index')->with('success', 'Category updated successfully!');
     }
 
@@ -95,7 +113,13 @@ class CategoryController extends Controller
             unlink(public_path('category_images/' . $category->image));
         }
 
+        $categoryName = $category->name;
         $category->delete();
+
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("📂🗑️ <b>CATEGORY DELETED</b>\n\n" .
+                                           "📁 <b>Name:</b> {$categoryName}\n" .
+                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
 
         return redirect()->route('categories.index')->with('success', 'Category deleted successfully!');
     }

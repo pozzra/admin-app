@@ -61,14 +61,15 @@ class OrderController extends Controller
 
         // Send Telegram Notification
         $user = \App\Models\User::find($request->user_id);
-        $message = "<b>New Order #{$order->id}</b>\n" .
-                   "<b>Customer:</b> {$user->name}\n" .
-                   "<b>Location:</b> " . ($user->location ?? 'N/A') . "\n" .
-                   "<b>Total Amount:</b> $" . number_format($totalAmount, 2) . "\n" .
-                   "<b>Status:</b> {$request->status}\n" .
-                   "<b>Payment:</b> {$request->payment_method}\n" .
-                   "<b>Date:</b> " . $order->created_at->format('Y-m-d H:i') . "\n\n" .
-                   "<b>Items:</b>\n" . $itemsListString;
+        $message = "🛒 <b>NEW ORDER RECEIVED</b>\n\n" .
+                   "🆔 <b>Order ID:</b> #{$order->id}\n" .
+                   "👤 <b>Customer:</b> {$user->name}\n" .
+                   "📍 <b>Location:</b> " . ($user->location ?? 'N/A') . "\n" .
+                   "💰 <b>Total Amount:</b> $" . number_format($totalAmount, 2) . "\n" .
+                   "🔔 <b>Status:</b> {$request->status}\n" .
+                   "💳 <b>Payment:</b> {$request->payment_method}\n" .
+                   "📅 <b>Date:</b> " . $order->created_at->format('Y-m-d H:i') . "\n\n" .
+                   "📦 <b>Items:</b>\n" . $itemsListString;
 
         $this->telegramService->sendMessage($message);
 
@@ -138,13 +139,14 @@ class OrderController extends Controller
 
         // Send Telegram Notification for Edit
         $user = $order->user;
-        $message = "<b>Edited Order Update</b>\n" .
-                   "<b>Customer:</b> {$user->name}\n" .
-                   "<b>Location:</b> " . ($user->location ?? 'N/A') . "\n" .
-                   "<b>Total Amount:</b> $" . number_format($order->total_amount, 2) . "\n" .
-                   "<b>Status:</b> {$request->status}\n" .
-                   "<b>Updated By:</b> " . Auth::user()->name . "\n" .
-                   "<b>Date:</b> " . now()->format('Y-m-d H:i');
+        $message = "📝 <b>ORDER UPDATED</b>\n\n" .
+                   "🆔 <b>Order ID:</b> #{$order->id}\n" .
+                   "👤 <b>Customer:</b> {$user->name}\n" .
+                   "📍 <b>Location:</b> " . ($user->location ?? 'N/A') . "\n" .
+                   "💰 <b>Total Amount:</b> $" . number_format($order->total_amount, 2) . "\n" .
+                   "🔔 <b>Status:</b> {$request->status}\n" .
+                   "👨‍💻 <b>Updated By:</b> " . Auth::user()->name . "\n" .
+                   "📅 <b>Date:</b> " . now()->format('Y-m-d H:i');
 
         $this->telegramService->sendMessage($message);
 

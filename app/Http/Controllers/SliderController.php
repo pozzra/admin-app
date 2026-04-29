@@ -3,12 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\Slider;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage; // For handling file storage
 use Illuminate\Support\Facades\Auth;
 
 class SliderController extends Controller
 {
+    protected $telegramService;
+
+    public function __construct(TelegramService $telegramService)
+    {
+        $this->telegramService = $telegramService;
+    }
     /**
      * Display a listing of the resource.
      */
@@ -58,9 +65,12 @@ class SliderController extends Controller
             $input['image'] = 'images/sliders/' . $imageName;
         }
 
-        $input['status'] = $request->has('status') ? 1 : 0;
-
         Slider::create($input);
+
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("<b>New Slider Created</b>\n" .
+                                           "<b>Title:</b> {$input['title']}\n" .
+                                           "<b>Admin:</b> " . Auth::user()->name);
 
         return redirect()->back()->with('success', 'Slider created successfully.');
     }
@@ -114,9 +124,13 @@ class SliderController extends Controller
             unset($input['image']); // Don't overwrite with null if no image uploaded
         }
 
-        $input['status'] = $request->has('status') ? 1 : 0;
-
         $slider->update($input);
+
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("<b>Slider Updated</b>\n" .
+                                           "<b>Title:</b> {$slider->title}\n" .
+                                           "<b>Status:</b> " . ($slider->status ? 'Active' : 'Inactive') . "\n" .
+                                           "<b>Admin:</b> " . Auth::user()->name);
 
         return redirect()->back()->with('success', 'Slider updated successfully.');
     }
@@ -130,11 +144,13 @@ class SliderController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        $slider = Slider::findOrFail($id);
-        if(file_exists(public_path($slider->image))){
-            unlink(public_path($slider->image));
-        }
+        $sliderTitle = $slider->title;
         $slider->delete();
+
+        // Send Telegram Notification
+        $this->telegramService->sendMessage("<b>Slider Deleted</b>\n" .
+                                           "<b>Title:</b> {$sliderTitle}\n" .
+                                           "<b>Admin:</b> " . Auth::user()->name);
 
         return redirect()->back()->with('success', 'Slider deleted successfully.');
     }
