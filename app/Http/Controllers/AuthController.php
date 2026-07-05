@@ -22,6 +22,8 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'User',
+            'status' => 'Active',
         ]);
 
         Auth::login($user);
@@ -39,6 +41,10 @@ class AuthController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'status' => 'Active'])) {
             $request->session()->regenerate();
 
+            if (Auth::user()->role === 'Admin') {
+                return redirect()->intended('/dashboard')->with('success', 'Login successful! Welcome back, Admin.');
+            }
+
             return redirect()->intended('/')->with('success', 'Login successful! Welcome back.');
         }
 
@@ -54,6 +60,6 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/login');
+        return redirect('/');
     }
 }

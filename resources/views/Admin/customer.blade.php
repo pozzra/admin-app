@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Management')
+@section('title', 'Customer Management')
 
 @section('admin-content')
 <div class="recent-grid" style="margin-top: 5rem;">
     <div class="card">
         <div class="card-header">
-            <h3><i class="fas fa-user-shield" style="margin-right: 10px; color: var(--primary);"></i> Administrators</h3>
+            <h3><i class="fas fa-user-friends" style="margin-right: 10px; color: var(--primary);"></i> {{ __('messages.customers') }} (អតិថិជន)</h3>
             <div style="display: flex; gap: 12px; align-items: center;">
-                <form method="GET" action="{{ route('user') }}" style="display: flex; gap: 8px; align-items: center;">
+                <form method="GET" action="{{ route('customers.index') }}" style="display: flex; gap: 8px; align-items: center;">
                     <input type="text" name="search" value="{{ $search }}" placeholder="{{ __('messages.search_placeholder') }}" class="search-input">
                     <select name="per_page" class="per-page-select">
                         <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
@@ -16,8 +16,8 @@
                         <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
                     </select>
                 </form>
-                <button class="btn-primary" onclick="createUser()">
-                    <i class="fas fa-plus"></i> Add Admin
+                <button class="btn-primary" onclick="createCustomer()">
+                    <i class="fas fa-plus"></i> {{ __('messages.add_customer') }}
                 </button>
             </div>
         </div>
@@ -54,8 +54,8 @@
                             </td>
                             <td>
                                 <div style="display: flex; gap: 8px;">
-                                    <button class="edit-btn" onclick="editUser({{ json_encode($user) }})" title="Edit"><i class="fas fa-edit"></i></button>
-                                    <button class="delete-btn" onclick="deleteUser({{ $user->id }})" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button class="edit-btn" onclick="editCustomer({{ json_encode($user) }})" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="delete-btn" onclick="deleteCustomer({{ $user->id }})" title="Delete"><i class="fas fa-trash"></i></button>
                                 </div>
                             </td>
                         </tr>
@@ -76,16 +76,16 @@
 </form>
 
 <script>
-    function createUser() {
+    function createCustomer() {
         Swal.fire({
-            title: 'Add New Admin',
+            title: '{{ __('messages.add_customer') }}',
             html: `
                 <form id="create-user-form" action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="role" value="Admin">
+                    <input type="hidden" name="role" value="User">
                     <div style="margin-bottom: 1.25rem; text-align: left;">
                         <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Name</label>
-                        <input type="text" name="name" class="swal2-input" placeholder="Admin Name" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
+                        <input type="text" name="name" class="swal2-input" placeholder="Customer Name" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
                     </div>
                     <div style="margin-bottom: 1.25rem; text-align: left;">
                         <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Email</label>
@@ -122,17 +122,17 @@
         });
     }
 
-    function editUser(user) {
+    function editCustomer(user) {
         Swal.fire({
-            title: '{{ __('messages.edit') }} Admin',
+            title: '{{ __('messages.edit') }} {{ __('messages.customers') }}',
             html: `
                 <form id="edit-user-form" action="/users/${user.id}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="role" value="Admin">
+                    <input type="hidden" name="role" value="User">
                     <div style="margin-bottom: 1.25rem; text-align: left;">
                         <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Name</label>
-                        <input type="text" name="name" value="${user.name}" class="swal2-input" placeholder="Admin Name" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
+                        <input type="text" name="name" value="${user.name}" class="swal2-input" placeholder="Customer Name" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
                     </div>
                     <div style="margin-bottom: 1.25rem; text-align: left;">
                         <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Email</label>
@@ -170,7 +170,7 @@
         });
     }
 
-    function deleteUser(id) {
+    function deleteCustomer(id) {
         Swal.fire({
             title: '{{ __('messages.confirm_delete') }}',
             text: "{{ __('messages.wont_revert') }}",

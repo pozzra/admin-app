@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Slider;
 use App\Services\TelegramService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage; // For handling file storage
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Auth; // For handling file storage
+use Illuminate\Support\Facades\Storage;
 
 class SliderController extends Controller
 {
@@ -16,6 +16,7 @@ class SliderController extends Controller
     {
         $this->telegramService = $telegramService;
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -25,14 +26,14 @@ class SliderController extends Controller
         $perPage = $request->input('per_page', 10);
 
         $sliders = Slider::when($search, function ($query, $search) {
-                $query->where(function($q) use ($search) {
-                    $q->where('title', 'like', "%{$search}%");
-                });
-            })
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%");
+            });
+        })
             ->paginate($perPage)
             ->withQueryString();
 
-        return view('Slider.slider', compact('sliders', 'search', 'perPage'));
+        return view('Slider.index', compact('sliders', 'search', 'perPage'));
     }
 
     /**
@@ -60,17 +61,17 @@ class SliderController extends Controller
         $input = $request->all();
 
         if ($request->hasFile('image')) {
-            $imageName = time().'.'.$request->image->extension();  
+            $imageName = time().'.'.$request->image->extension();
             $request->image->move(public_path('images/sliders'), $imageName);
-            $input['image'] = 'images/sliders/' . $imageName;
+            $input['image'] = 'images/sliders/'.$imageName;
         }
 
         Slider::create($input);
 
         // Send Telegram Notification
-        $this->telegramService->sendMessage("<b>New Slider Created</b>\n" .
-                                           "<b>Title:</b> {$input['title']}\n" .
-                                           "<b>Admin:</b> " . Auth::user()->name);
+        $this->telegramService->sendMessage("<b>New Slider Created</b>\n".
+                                           "<b>Title:</b> {$input['title']}\n".
+                                           '<b>Admin:</b> '.Auth::user()->name);
 
         return redirect()->back()->with('success', 'Slider created successfully.');
     }
@@ -113,13 +114,13 @@ class SliderController extends Controller
 
         if ($request->hasFile('image')) {
             // Delete old image? Optional but good practice.
-             if(file_exists(public_path($slider->image))){
+            if (file_exists(public_path($slider->image))) {
                 unlink(public_path($slider->image));
             }
 
-            $imageName = time().'.'.$request->image->extension();  
+            $imageName = time().'.'.$request->image->extension();
             $request->image->move(public_path('images/sliders'), $imageName);
-            $input['image'] = 'images/sliders/' . $imageName;
+            $input['image'] = 'images/sliders/'.$imageName;
         } else {
             unset($input['image']); // Don't overwrite with null if no image uploaded
         }
@@ -127,10 +128,10 @@ class SliderController extends Controller
         $slider->update($input);
 
         // Send Telegram Notification
-        $this->telegramService->sendMessage("<b>Slider Updated</b>\n" .
-                                           "<b>Title:</b> {$slider->title}\n" .
-                                           "<b>Status:</b> " . ($slider->status ? 'Active' : 'Inactive') . "\n" .
-                                           "<b>Admin:</b> " . Auth::user()->name);
+        $this->telegramService->sendMessage("<b>Slider Updated</b>\n".
+                                           "<b>Title:</b> {$slider->title}\n".
+                                           '<b>Status:</b> '.($slider->status ? 'Active' : 'Inactive')."\n".
+                                           '<b>Admin:</b> '.Auth::user()->name);
 
         return redirect()->back()->with('success', 'Slider updated successfully.');
     }
@@ -148,9 +149,9 @@ class SliderController extends Controller
         $slider->delete();
 
         // Send Telegram Notification
-        $this->telegramService->sendMessage("<b>Slider Deleted</b>\n" .
-                                           "<b>Title:</b> {$sliderTitle}\n" .
-                                           "<b>Admin:</b> " . Auth::user()->name);
+        $this->telegramService->sendMessage("<b>Slider Deleted</b>\n".
+                                           "<b>Title:</b> {$sliderTitle}\n".
+                                           '<b>Admin:</b> '.Auth::user()->name);
 
         return redirect()->back()->with('success', 'Slider deleted successfully.');
     }

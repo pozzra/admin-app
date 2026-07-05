@@ -16,6 +16,7 @@ class ProductController extends Controller
     {
         $this->telegramService = $telegramService;
     }
+
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -23,16 +24,17 @@ class ProductController extends Controller
 
         $products = Product::with('category')
             ->when($search, function ($query, $search) {
-                $query->where(function($q) use ($search) {
+                $query->where(function ($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('description', 'like', "%{$search}%");
+                        ->orWhere('description', 'like', "%{$search}%");
                 });
             })
             ->paginate($perPage)
             ->withQueryString();
 
         $categories = Category::all();
-        return view('Products.products', compact('products', 'categories', 'search', 'perPage'));
+
+        return view('Product.index', compact('products', 'categories', 'search', 'perPage'));
     }
 
     public function store(Request $request)
@@ -54,7 +56,7 @@ class ProductController extends Controller
         $input = $request->all();
 
         if ($request->hasFile('image')) {
-            $imageName = time() . '.' . $request->image->extension();
+            $imageName = time().'.'.$request->image->extension();
             $request->image->move(public_path('product_images'), $imageName);
             $input['image'] = $imageName;
         }
@@ -62,11 +64,11 @@ class ProductController extends Controller
         Product::create($input);
 
         // Send Telegram Notification
-        $this->telegramService->sendMessage("🆕 <b>NEW PRODUCT CREATED</b>\n\n" .
-                                           "📦 <b>Name:</b> {$input['name']}\n" .
-                                           "💵 <b>Price:</b> $" . number_format($input['price'], 2) . "\n" .
-                                           "📊 <b>Stock:</b> {$input['stock']}\n" .
-                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+        $this->telegramService->sendMessage("🆕 <b>NEW PRODUCT CREATED</b>\n\n".
+                                           "📦 <b>Name:</b> {$input['name']}\n".
+                                           '💵 <b>Price:</b> $'.number_format($input['price'], 2)."\n".
+                                           "📊 <b>Stock:</b> {$input['stock']}\n".
+                                           '👨‍💻 <b>Admin:</b> '.Auth::user()->name);
 
         return redirect()->route('products.index')->with('success', 'Product created successfully!');
     }
@@ -92,11 +94,11 @@ class ProductController extends Controller
 
         if ($request->hasFile('image')) {
             // Delete old image
-            if ($product->image && file_exists(public_path('product_images/' . $product->image))) {
-                unlink(public_path('product_images/' . $product->image));
+            if ($product->image && file_exists(public_path('product_images/'.$product->image))) {
+                unlink(public_path('product_images/'.$product->image));
             }
 
-            $imageName = time() . '.' . $request->image->extension();
+            $imageName = time().'.'.$request->image->extension();
             $request->image->move(public_path('product_images'), $imageName);
             $input['image'] = $imageName;
         }
@@ -104,11 +106,11 @@ class ProductController extends Controller
         $product->update($input);
 
         // Send Telegram Notification
-        $this->telegramService->sendMessage("🔄 <b>PRODUCT UPDATED</b>\n\n" .
-                                           "📦 <b>Name:</b> {$product->name}\n" .
-                                           "💵 <b>Price:</b> $" . number_format($product->price, 2) . "\n" .
-                                           "🔔 <b>Status:</b> {$product->status}\n" .
-                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+        $this->telegramService->sendMessage("🔄 <b>PRODUCT UPDATED</b>\n\n".
+                                           "📦 <b>Name:</b> {$product->name}\n".
+                                           '💵 <b>Price:</b> $'.number_format($product->price, 2)."\n".
+                                           "🔔 <b>Status:</b> {$product->status}\n".
+                                           '👨‍💻 <b>Admin:</b> '.Auth::user()->name);
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully!');
     }
@@ -121,17 +123,17 @@ class ProductController extends Controller
 
         $product = Product::findOrFail($id);
 
-        if ($product->image && file_exists(public_path('product_images/' . $product->image))) {
-            unlink(public_path('product_images/' . $product->image));
+        if ($product->image && file_exists(public_path('product_images/'.$product->image))) {
+            unlink(public_path('product_images/'.$product->image));
         }
 
         $productName = $product->name;
         $product->delete();
 
         // Send Telegram Notification
-        $this->telegramService->sendMessage("🗑️ <b>PRODUCT DELETED</b>\n\n" .
-                                           "📦 <b>Name:</b> {$productName}\n" .
-                                           "👨‍💻 <b>Admin:</b> " . Auth::user()->name);
+        $this->telegramService->sendMessage("🗑️ <b>PRODUCT DELETED</b>\n\n".
+                                           "📦 <b>Name:</b> {$productName}\n".
+                                           '👨‍💻 <b>Admin:</b> '.Auth::user()->name);
 
         return redirect()->route('products.index')->with('success', 'Product deleted successfully!');
     }

@@ -1,14 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', 'Admin Management')
+@section('title', 'Category Management')
 
 @section('admin-content')
 <div class="recent-grid" style="margin-top: 5rem;">
     <div class="card">
         <div class="card-header">
-            <h3><i class="fas fa-user-shield" style="margin-right: 10px; color: var(--primary);"></i> Administrators</h3>
+            <h3>{{ __('messages.categories') }}</h3>
             <div style="display: flex; gap: 12px; align-items: center;">
-                <form method="GET" action="{{ route('user') }}" style="display: flex; gap: 8px; align-items: center;">
+                <form method="GET" action="{{ route('categories.index') }}" style="display: flex; gap: 8px; align-items: center;">
                     <input type="text" name="search" value="{{ $search }}" placeholder="{{ __('messages.search_placeholder') }}" class="search-input">
                     <select name="per_page" class="per-page-select">
                         <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
@@ -16,9 +16,11 @@
                         <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
                     </select>
                 </form>
-                <button class="btn-primary" onclick="createUser()">
-                    <i class="fas fa-plus"></i> Add Admin
+                @if(Auth::user()->role === 'Admin')
+                <button class="btn-primary" onclick="createCategory()">
+                    <i class="fas fa-plus"></i> {{ __('messages.add_category') }}
                 </button>
+                @endif
             </div>
         </div>
         <div class="card-body">
@@ -28,72 +30,70 @@
                         <tr>
                             <td>{{ __('messages.image') }}</td>
                             <td>{{ __('messages.name') }}</td>
-                            <td>{{ __('messages.email') }}</td>
+                            <td>{{ __('messages.description') }}</td>
                             <td>Status</td>
+                            @if(Auth::user()->role === 'Admin')
                             <td>{{ __('messages.action') }}</td>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $user)
+                        @foreach($categories as $category)
                         <tr>
                             <td>
-                                @if($user->image)
-                                    <img src="{{ asset('user_images/' . $user->image) }}" alt="{{ $user->name }}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%; cursor: pointer; border: 2px solid var(--border-color);" onclick="showImage('{{ asset('user_images/' . $user->image) }}')">
+                                @if($category->image)
+                                    <img src="{{ asset('category_images/' . $category->image) }}" alt="{{ $category->name }}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 1px solid var(--border-color);" onclick="showImage('{{ asset('category_images/' . $category->image) }}')">
                                 @else
-                                    <div style="width: 40px; height: 40px; background: var(--primary-soft); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem;">
-                                        <i class="fas fa-user"></i>
-                                    </div>
+                                    <span class="text-muted" style="font-size: 0.75rem;">No Image</span>
                                 @endif
                             </td>
-                            <td style="font-weight: 500;">{{ $user->name }}</td>
-                            <td style="color: var(--text-muted);">{{ $user->email }}</td>
+                            <td style="font-weight: 500;">{{ $category->name }}</td>
+                            <td style="color: var(--text-muted);">{{ Str::limit($category->description, 50) ?? '-' }}</td>
                             <td>
-                                <span class="badge {{ strtolower($user->status) == 'active' ? 'badge-success' : 'badge-danger' }}">
-                                    {{ $user->status ?? 'Active' }}
+                                <span class="badge {{ strtolower($category->status) == 'active' ? 'badge-success' : 'badge-danger' }}">
+                                    {{ $category->status ?? 'Active' }}
                                 </span>
                             </td>
+                            @if(Auth::user()->role === 'Admin')
                             <td>
                                 <div style="display: flex; gap: 8px;">
-                                    <button class="edit-btn" onclick="editUser({{ json_encode($user) }})" title="Edit"><i class="fas fa-edit"></i></button>
-                                    <button class="delete-btn" onclick="deleteUser({{ $user->id }})" title="Delete"><i class="fas fa-trash"></i></button>
+                                    <button class="edit-btn" onclick="editCategory({{ json_encode($category) }})" title="Edit"><i class="fas fa-edit"></i></button>
+                                    <button class="delete-btn" onclick="deleteCategory({{ $category->id }})" title="Delete"><i class="fas fa-trash"></i></button>
                                 </div>
                             </td>
+                            @endif
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
+
             <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end;">
-                {{ $users->links() }}
+                {{ $categories->links() }}
             </div>
         </div>
     </div>
 </div>
 
-<form id="delete-user-form" method="POST" style="display: none;">
+<form id="delete-category-form" method="POST" style="display: none;">
     @csrf
     @method('DELETE')
 </form>
 
 <script>
-    function createUser() {
+    function createCategory() {
         Swal.fire({
-            title: 'Add New Admin',
+            title: '{{ __('messages.add_category') }}',
             html: `
-                <form id="create-user-form" action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
+                <form id="create-category-form" action="{{ route('categories.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" name="role" value="Admin">
                     <div style="margin-bottom: 1.25rem; text-align: left;">
                         <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Name</label>
-                        <input type="text" name="name" class="swal2-input" placeholder="Admin Name" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
+                        <input type="text" name="name" class="swal2-input" placeholder="Category Name" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
                     </div>
                     <div style="margin-bottom: 1.25rem; text-align: left;">
-                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Email</label>
-                        <input type="email" name="email" class="swal2-input" placeholder="Email Address" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
-                    </div>
-                    <div style="margin-bottom: 1.25rem; text-align: left;">
-                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Password</label>
-                        <input type="password" name="password" class="swal2-input" placeholder="Password" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
+                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Description</label>
+                        <textarea name="description" class="swal2-input" placeholder="Description" style="margin: 0.5rem 0; width: 100%; height: 100px; border-radius: 0.5rem; font-size: 0.9375rem; padding: 0.75rem;"></textarea>
                     </div>
                     <div style="margin-bottom: 1.25rem; text-align: left;">
                         <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Status</label>
@@ -103,7 +103,7 @@
                         </select>
                     </div>
                     <div style="margin-bottom: 1rem; text-align: left;">
-                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Profile Image</label>
+                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Image</label>
                         <input type="file" name="image" class="swal2-input" style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem; border: 1px dashed var(--border-color);">
                     </div>
                 </form>
@@ -111,8 +111,12 @@
             showCancelButton: true,
             confirmButtonText: '{{ __('messages.create') }}',
             cancelButtonText: '{{ __('messages.cancel') }}',
+            customClass: {
+                confirmButton: 'btn-primary',
+                cancelButton: 'btn-secondary'
+            },
             preConfirm: () => {
-                const form = document.getElementById('create-user-form');
+                const form = document.getElementById('create-category-form');
                 if (!form.checkValidity()) {
                     form.reportValidity();
                     return false;
@@ -122,37 +126,32 @@
         });
     }
 
-    function editUser(user) {
+    function editCategory(category) {
         Swal.fire({
-            title: '{{ __('messages.edit') }} Admin',
+            title: '{{ __('messages.edit') }}',
             html: `
-                <form id="edit-user-form" action="/users/${user.id}" method="POST" enctype="multipart/form-data">
+                <form id="edit-category-form" action="/categories/${category.id}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
-                    <input type="hidden" name="role" value="Admin">
                     <div style="margin-bottom: 1.25rem; text-align: left;">
                         <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Name</label>
-                        <input type="text" name="name" value="${user.name}" class="swal2-input" placeholder="Admin Name" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
+                        <input type="text" name="name" value="${category.name}" class="swal2-input" placeholder="Category Name" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
                     </div>
                     <div style="margin-bottom: 1.25rem; text-align: left;">
-                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Email</label>
-                        <input type="email" name="email" value="${user.email}" class="swal2-input" placeholder="Email Address" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
+                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Description</label>
+                        <textarea name="description" class="swal2-input" placeholder="Description" style="margin: 0.5rem 0; width: 100%; height: 100px; border-radius: 0.5rem; font-size: 0.9375rem; padding: 0.75rem;">${category.description || ''}</textarea>
                     </div>
                     <div style="margin-bottom: 1.25rem; text-align: left;">
                         <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Status</label>
                         <select name="status" class="swal2-input" required style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
-                            <option value="Active" ${user.status === 'Active' ? 'selected' : ''}>Active</option>
-                            <option value="Inactive" ${user.status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                            <option value="Active" ${category.status === 'Active' ? 'selected' : '' }>Active</option>
+                            <option value="Inactive" ${category.status === 'Inactive' ? 'selected' : '' }>Inactive</option>
                         </select>
                     </div>
-                    <div style="margin-bottom: 1.25rem; text-align: left;">
-                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Password (Leave blank to keep current)</label>
-                        <input type="password" name="password" class="swal2-input" placeholder="New Password" style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem;">
-                    </div>
                     <div style="margin-bottom: 1rem; text-align: left;">
-                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Profile Image</label>
+                        <label style="font-size: 0.875rem; font-weight: 600; color: var(--text-main);">Image</label>
                         <input type="file" name="image" class="swal2-input" style="margin: 0.5rem 0; width: 100%; border-radius: 0.5rem; font-size: 0.9375rem; border: 1px dashed var(--border-color);">
-                        ${user.image ? `<div style="margin-top: 10px;"><img src="/user_images/${user.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%; border: 1px solid var(--border-color);"></div>` : ''}
+                        ${category.image ? `<div style="margin-top: 10px;"><img src="/category_images/${category.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></div>` : ''}
                     </div>
                 </form>
             `,
@@ -160,7 +159,7 @@
             confirmButtonText: '{{ __('messages.update') }}',
             cancelButtonText: '{{ __('messages.cancel') }}',
             preConfirm: () => {
-                const form = document.getElementById('edit-user-form');
+                const form = document.getElementById('edit-category-form');
                 if (!form.checkValidity()) {
                     form.reportValidity();
                     return false;
@@ -170,7 +169,7 @@
         });
     }
 
-    function deleteUser(id) {
+    function deleteCategory(id) {
         Swal.fire({
             title: '{{ __('messages.confirm_delete') }}',
             text: "{{ __('messages.wont_revert') }}",
@@ -182,8 +181,8 @@
             cancelButtonText: '{{ __('messages.cancel') }}'
         }).then((result) => {
             if (result.isConfirmed) {
-                let form = document.getElementById('delete-user-form');
-                form.action = '/users/' + id;
+                let form = document.getElementById('delete-category-form');
+                form.action = '/categories/' + id;
                 form.submit();
             }
         })

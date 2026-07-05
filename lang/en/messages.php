@@ -53,6 +53,11 @@ return [
     'payment_method' => 'Payment Method',
     'date' => 'Date',
     'edit_order_status' => 'Edit Order Status',
+    'edit_order' => 'Edit Order',
     'add_order' => 'Add Order',
     'add' => 'Add',
+    'reports' => 'Reports',
+    'monthly_report' => 'Monthly Report',
+    'customers' => 'Customers',
+    'add_customer' => 'Add Customer',
 ];

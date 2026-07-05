@@ -9,19 +9,23 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="logo">
-            <h2>{{ Auth::user()->role }}<span> Panel</span></h2>
+            <a href="{{ route('home') }}" style="text-decoration: none;">
+                <h2 style="color: white;"><i class="fas fa-shopping-bag"></i> Shop<span>Hero</span></h2>
+            </a>
         </div>
 
         <!-- Sidebar Profile Removed -->
 
         <ul class="nav-links">
-            <li class="{{ Request::is('/') ? 'active' : '' }}"><a href="{{ url('/') }}"><i class="fas fa-th-large"></i> {{ __('messages.dashboard') }}</a></li>
-            <li class="{{ Request::routeIs('user') ? 'active' : '' }}"><a href="{{ route('user') }}"><i class="fas fa-users"></i> {{ __('messages.users') }}</a></li>
-            <li class="{{ Request::routeIs('categories.index') ? 'active' : '' }}"><a href="{{ route('categories.index') }}"><i class="fas fa-list"></i> {{ __('messages.categories') }}</a></li>
-            <li class="{{ Request::routeIs('products.index') ? 'active' : '' }}"><a href="{{ route('products.index') }}"><i class="fas fa-boxes"></i> {{ __('messages.products') }}</a></li>
-            <li class="{{ Request::routeIs('orders.index') ? 'active' : '' }}"><a href="{{ route('orders.index') }}"><i class="fas fa-shopping-cart"></i> {{ __('messages.orders') }}</a></li>
-            <li class="{{ Request::routeIs('sliders.index') ? 'active' : '' }}"><a href="{{ route('sliders.index') }}"><i class="fas fa-images"></i> {{ __('messages.sliders') }}</a></li>
-            <li class="{{ Request::routeIs('settings.index') ? 'active' : '' }}"><a href="{{ route('settings.index') }}"><i class="fas fa-cog"></i> {{ __('messages.settings') }}</a></li>
+            <li class="{{ Request::routeIs('dashboard') ? 'active' : '' }}"><a href="{{ route('dashboard') }}"><i class="fas fa-chart-pie"></i> <span>{{ __('messages.dashboard') }}</span></a></li>
+            <li class="{{ Request::routeIs('user') ? 'active' : '' }}"><a href="{{ route('user') }}"><i class="fas fa-user-shield"></i> <span>Admins</span></a></li>
+            <li class="{{ Request::routeIs('customers.index') ? 'active' : '' }}"><a href="{{ route('customers.index') }}"><i class="fas fa-user-friends"></i> <span>{{ __('messages.customers') }}</span></a></li>
+            <li class="{{ Request::routeIs('categories.index') ? 'active' : '' }}"><a href="{{ route('categories.index') }}"><i class="fas fa-layer-group"></i> <span>{{ __('messages.categories') }}</span></a></li>
+            <li class="{{ Request::routeIs('products.index') ? 'active' : '' }}"><a href="{{ route('products.index') }}"><i class="fas fa-shopping-bag"></i> <span>{{ __('messages.products') }}</span></a></li>
+            <li class="{{ Request::routeIs('orders.index') ? 'active' : '' }}"><a href="{{ route('orders.index') }}"><i class="fas fa-receipt"></i> <span>{{ __('messages.orders') }}</span></a></li>
+            <li class="{{ Request::routeIs('reports.index') ? 'active' : '' }}"><a href="{{ route('reports.index') }}"><i class="fas fa-file-invoice-dollar"></i> <span>{{ __('messages.reports') }}</span></a></li>
+            <li class="{{ Request::routeIs('sliders.index') ? 'active' : '' }}"><a href="{{ route('sliders.index') }}"><i class="fas fa-photo-video"></i> <span>{{ __('messages.sliders') }}</span></a></li>
+            <li class="{{ Request::routeIs('settings.index') ? 'active' : '' }}"><a href="{{ route('settings.index') }}"><i class="fas fa-sliders-h"></i> <span>{{ __('messages.settings') }}</span></a></li>
             
             <!-- Removed Mobile Only Controls -->
 
